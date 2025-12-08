@@ -26,7 +26,7 @@ export default function WeatherDashboard() {
     fetchWeather()
   }, [currentCity])
 
-  // Background image logic
+  // Background selection
   const getBackgroundImage = () => {
     if (!weatherData) return "/images/sunny.jpg"
     const desc = weatherData.description.toLowerCase()
@@ -36,12 +36,13 @@ export default function WeatherDashboard() {
     if (desc.includes("rain")) return "/images/rainy.jpg"
     if (desc.includes("storm") || desc.includes("thunder")) return "/images/storm.jpg"
     if (desc.includes("snow")) return "/images/snow.jpg"
-    if (desc.includes("fog") || desc.includes("mist") || desc.includes("haze")) return "/images/partly_cloudy.jpg"
+    if (desc.includes("fog") || desc.includes("mist") || desc.includes("haze"))
+      return "/images/partly_cloudy.jpg"
 
     return "/images/sunny.jpg"
   }
 
-  // TEMP 24hr generated data (replace with real API later if needed)
+  // Temporary 24-hour temperature generator
   const generate24HourData = () => {
     const list = []
     for (let i = 0; i < 24; i++) {
@@ -73,7 +74,7 @@ export default function WeatherDashboard() {
         <SearchBar onSearch={setCurrentCity} />
       </div>
 
-      {/* Loading skeleton */}
+      {/* LOADING */}
       {loading ? (
         <div className="max-w-7xl mx-auto animate-pulse space-y-6">
           <div className="h-64 bg-white/20 rounded-2xl" />
@@ -86,7 +87,7 @@ export default function WeatherDashboard() {
       ) : weatherData ? (
         <div className="max-w-7xl mx-auto space-y-10">
 
-          {/* --- MAIN GRID --- */}
+          {/* MAIN GRID */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* LEFT COLUMN */}
@@ -94,27 +95,34 @@ export default function WeatherDashboard() {
               <CurrentWeather data={weatherData} />
             </div>
 
-            {/* RIGHT COLUMN */}
-            <div className="lg:col-span-2 flex flex-col gap-6">
+            {/* RIGHT COLUMN (FIXED SPACING, NO OVERLAP) */}
+            <div className="lg:col-span-2 flex flex-col gap-8">
 
-              {/* HORIZONTAL FORECAST CARDS – unchanged */}
-              <ForecastCards forecast={weatherData.forecast} />
+              {/* FORECAST ROW */}
+              <div className="w-full">
+                <ForecastCards forecast={weatherData.forecast} />
+              </div>
 
-              {/* 24 HOUR TEMP CHART */}
-              <TwentyFourHourChart data={hourlyData} />
+              {/* 24-HOUR TEMP CHART */}
+              <div className="w-full">
+                <TwentyFourHourChart data={hourlyData} />
+              </div>
 
               {/* PERSONALITY CARD */}
-              <WeatherPersonalityCard
-                city={currentCity}
-                temp={weatherData.temp}
-                category={weatherData.description}
-                wind={weatherData.wind_speed}
-                humidity={weatherData.humidity}
-              />
+              <div className="w-full">
+                <WeatherPersonalityCard
+                  city={currentCity}
+                  temp={weatherData.temp}
+                  category={weatherData.description}
+                  wind={weatherData.wind_speed}
+                  humidity={weatherData.humidity}
+                />
+              </div>
+
             </div>
           </div>
 
-          {/* AI GUIDE SECTION (full width at bottom) */}
+          {/* AI GUIDE (FULL WIDTH) */}
           {guideForUI && <AIGuideSection guide={guideForUI} />}
         </div>
       ) : (

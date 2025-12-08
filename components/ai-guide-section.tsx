@@ -28,15 +28,21 @@ export default function AIGuideSection({ guide }: AIGuideSectionProps) {
           <div
             key={item.key}
             className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 
-            hover:bg-white/20 transition-all duration-300 transform hover:translate-y-[-4px]"
+                       hover:bg-white/20 transition-all duration-300 transform hover:translate-y-[-4px]"
           >
-            <h3 className="text-white font-semibold tracking-wide text-lg mb-3">
+            {/* ⭐ Stylish Gradient Heading */}
+            <h3
+              className="text-white font-bold text-xl tracking-wide mb-3 
+                         bg-gradient-to-r from-white to-white/70 
+                         bg-clip-text text-transparent drop-shadow-lg"
+            >
               {item.title}
             </h3>
 
-            {/* FULLY JUSTIFIED TEXT */}
+            {/* Body Text */}
             <p
-              className="text-white/80 text-[15px] leading-relaxed font-light whitespace-pre-wrap break-words tracking-wide"
+              className="text-white/80 text-[15px] leading-relaxed font-light 
+                         whitespace-pre-wrap break-words tracking-wide"
               style={{ textAlign: "justify" }}
             >
               {guide[item.key]}

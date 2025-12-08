@@ -29,34 +29,23 @@ export default function WeatherDashboard() {
     fetchWeather()
   }, [currentCity])
 
-  // 🌈 DYNAMIC BACKGROUND IMAGE LOGIC
+  // 🌈 BACKGROUND IMAGE LOGIC
   const getBackgroundImage = () => {
     if (!weatherData) return "/images/sunny.jpg"
 
     const desc = weatherData.description.toLowerCase()
 
-    if (desc.includes("sun") || desc.includes("clear"))
-      return "/images/sunny.jpg"
-
-    if (desc.includes("cloud"))
-      return "/images/cloudy.jpg"
-
-    if (desc.includes("rain"))
-      return "/images/rainy.jpg"
-
-    if (desc.includes("storm") || desc.includes("thunder"))
-      return "/images/storm.jpg"
-
-    if (desc.includes("snow"))
-      return "/images/snow.jpg"
-
-    if (desc.includes("fog") || desc.includes("mist") || desc.includes("haze"))
-      return "/images/fog.jpg"
+    if (desc.includes("sun") || desc.includes("clear")) return "/images/sunny.jpg"
+    if (desc.includes("cloud")) return "/images/cloudy.jpg"
+    if (desc.includes("rain")) return "/images/rainy.jpg"
+    if (desc.includes("storm") || desc.includes("thunder")) return "/images/storm.jpg"
+    if (desc.includes("snow")) return "/images/snow.jpg"
+    if (desc.includes("fog") || desc.includes("mist") || desc.includes("haze")) return "/images/fog.jpg"
 
     return "/images/sunny.jpg"
   }
 
-  // AI Guide mapping
+  // ⭐ PREPARE AI GUIDE
   const guideForUI = weatherData
     ? {
         morning: weatherData.ai_guide.morning,
@@ -76,50 +65,46 @@ export default function WeatherDashboard() {
         backgroundImage: `url(${getBackgroundImage()})`,
       }}
     >
-      {/* Header */}
+      {/* TOP HEADER */}
       <div className="max-w-7xl mx-auto mb-8">
-        <h1 className="text-4xl font-bold text-white mb-6 drop-shadow-lg">
-          🌍 AI Weather System
+        <h1 className="text-4xl font-bold text-white mb-6 drop-shadow-xl">
+          🌍 ClimoCast
         </h1>
 
         <SearchBar onSearch={setCurrentCity} />
       </div>
 
-      {/* Loading State */}
+      {/* LOADING SKELETON */}
       {loading ? (
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-4">
-            <div className="h-64 bg-white/20 rounded-2xl" />
+            <div className="h-64 bg-white/20 backdrop-blur-md rounded-2xl" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="h-40 bg-white/20 rounded-2xl" />
-              <div className="h-40 bg-white/20 rounded-2xl" />
-              <div className="h-40 bg-white/20 rounded-2xl" />
+              <div className="h-40 bg-white/20 backdrop-blur-md rounded-2xl" />
+              <div className="h-40 bg-white/20 backdrop-blur-md rounded-2xl" />
+              <div className="h-40 bg-white/20 backdrop-blur-md rounded-2xl" />
             </div>
           </div>
         </div>
       ) : weatherData ? (
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Main Content */}
+          {/* MAIN GRID */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Current Weather */}
             <div className="lg:col-span-1">
               <CurrentWeather data={weatherData} />
             </div>
 
-            {/* Forecast Cards */}
             <div className="lg:col-span-2">
               <ForecastCards forecast={weatherData.forecast} />
             </div>
           </div>
 
-          {/* AI Weather Guide */}
+          {/* AI GUIDE */}
           {guideForUI && <AIGuideSection guide={guideForUI} />}
         </div>
       ) : (
         <div className="max-w-7xl mx-auto text-center text-white">
-          <p className="text-xl">
-            Unable to fetch weather data. Please try again.
-          </p>
+          <p className="text-xl">Unable to fetch weather data. Please try again.</p>
         </div>
       )}
     </main>

@@ -23,16 +23,33 @@ const guides = [
 export default function AIGuideSection({ guide }: AIGuideSectionProps) {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-lg">💡 AI Weather Guide</h2>
+      <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-lg">
+        💡 AI Weather Guide
+      </h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {guides.map((item) => (
           <div
             key={item.key}
-            className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/30 hover:bg-white/20 transition-all duration-300 transform hover:translate-y-[-4px]"
+            className="
+              bg-white/15 
+              backdrop-blur-lg 
+              rounded-2xl 
+              p-6 
+              border border-white/30 
+              shadow-xl
+              hover:bg-white/20 
+              transition-all duration-300 
+              transform hover:translate-y-[-4px]
+            "
           >
             <div className="text-4xl mb-3">{item.icon}</div>
+
             <h3 className="text-white font-bold mb-3">{item.title}</h3>
-            <p className="text-white/80 text-sm leading-relaxed">{guide[item.key]}</p>
+
+            <p className="text-white/85 text-sm leading-relaxed">
+              {guide[item.key]}
+            </p>
           </div>
         ))}
       </div>

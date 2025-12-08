@@ -24,22 +24,33 @@ export default function CurrentWeather({ data }: CurrentWeatherProps) {
     if (desc.includes("cloud")) return "☁️"
     if (desc.includes("rain")) return "🌧️"
     if (desc.includes("snow")) return "❄️"
-    if (desc.includes("wind")) return "💨"
-    if (desc.includes("mist") || desc.includes("fog")) return "🌫️"
+    if (desc.includes("storm") || desc.includes("thunder")) return "⛈️"
+    if (desc.includes("mist") || desc.includes("fog") || desc.includes("haze")) return "🌫️"
+    if (desc.includes("wind") || desc.includes("breeze")) return "💨"
     return "🌤️"
   }
 
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/30 hover:bg-white/15 transition-all duration-300 h-full flex flex-col justify-between">
+    <div className="
+      bg-white/15
+      backdrop-blur-lg
+      rounded-2xl
+      p-8
+      border border-white/30
+      shadow-xl
+      hover:bg-white/20
+      transition-all duration-300
+      h-full flex flex-col justify-between
+    ">
       <div className="space-y-4">
         <div>
-          <h2 className="text-white/60 text-sm uppercase tracking-wide">Location</h2>
+          <h2 className="text-white/70 text-sm uppercase tracking-wide">Location</h2>
           <p className="text-3xl font-bold text-white">{data.city}</p>
-          <p className="text-white/70">{data.country}</p>
+          <p className="text-white/80">{data.country}</p>
         </div>
 
         <div>
-          <h2 className="text-white/60 text-sm uppercase tracking-wide">Time</h2>
+          <h2 className="text-white/70 text-sm uppercase tracking-wide">Time</h2>
           <p className="text-white text-lg">{data.local_time}</p>
         </div>
       </div>
@@ -49,7 +60,7 @@ export default function CurrentWeather({ data }: CurrentWeatherProps) {
         <div className="text-center py-8">
           <div className="text-7xl mb-4">{getWeatherEmoji()}</div>
           <div className="text-6xl font-bold text-white">{data.temp}°</div>
-          <p className="text-white/80 text-lg mt-2">{data.description}</p>
+          <p className="text-white/90 text-lg mt-2">{data.description}</p>
         </div>
 
         {/* Weather Details */}
@@ -61,8 +72,10 @@ export default function CurrentWeather({ data }: CurrentWeatherProps) {
         </div>
 
         {/* Wind Mood Badge */}
-        <div className="mt-4 inline-block bg-white/20 px-4 py-2 rounded-full">
-          <p className="text-white text-sm font-medium">{data.wind_mood}</p>
+        <div className="mt-4 inline-block bg-white/25 backdrop-blur-md px-4 py-2 rounded-full">
+          <p className="text-white text-sm font-semibold">
+            Wind Mood: {data.wind_mood}
+          </p>
         </div>
       </div>
     </div>
@@ -72,7 +85,7 @@ export default function CurrentWeather({ data }: CurrentWeatherProps) {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-center">
-      <span className="text-white/60 text-sm">{label}</span>
+      <span className="text-white/70 text-sm">{label}</span>
       <span className="text-white font-semibold">{value}</span>
     </div>
   )

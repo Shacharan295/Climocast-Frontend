@@ -5,14 +5,51 @@ const BACKEND_URL =
 
 // ⭐ Convert backend description → emoji
 function getEmoji(desc: string) {
-  const d = desc.toLowerCase()
-  if (d.includes("sun") || d.includes("clear")) return "☀️"
-  if (d.includes("cloud")) return "☁️"
-  if (d.includes("rain")) return "🌧️"
-  if (d.includes("storm")) return "⛈️"
-  if (d.includes("snow")) return "❄️"
-  if (d.includes("fog") || d.includes("mist") || d.includes("haze")) return "🌫️"
-  return "🌡️"
+  const d = desc.toLowerCase();
+
+  // Clear
+  if (d.includes("clear")) return "☀️";
+
+  // Clouds
+  if (d.includes("few clouds")) return "🌤️";
+  if (d.includes("scattered clouds")) return "⛅";
+  if (d.includes("broken clouds")) return "🌥️";
+  if (d.includes("overcast")) return "☁️";
+
+  // Rain
+  if (d.includes("freezing rain")) return "🧊🌧️";
+  if (d.includes("light rain")) return "🌦️";
+  if (d.includes("moderate rain")) return "🌧️";
+  if (d.includes("heavy rain")) return "🌧️🌧️";
+  if (d.includes("rain")) return "🌧️";
+
+  // Drizzle
+  if (d.includes("drizzle")) return "🌦️";
+
+  // Thunderstorm
+  if (d.includes("thunderstorm")) return "⛈️";
+
+  // Snow
+  if (d.includes("light snow")) return "🌨️";
+  if (d.includes("heavy snow")) return "❄️❄️";
+  if (d.includes("snow")) return "❄️";
+  if (d.includes("sleet")) return "🌨️🧊";
+
+  // Fog / Mist / Haze / Dust
+  if (
+    d.includes("fog") ||
+    d.includes("mist") ||
+    d.includes("haze") ||
+    d.includes("smoke") ||
+    d.includes("dust") ||
+    d.includes("sand")
+  ) return "🌫️";
+
+  // Tornado / Squall
+  if (d.includes("tornado") || d.includes("squall")) return "🌪️";
+
+  // Fallback
+  return "🌡️";
 }
 
 export async function getWeather(city: string) {

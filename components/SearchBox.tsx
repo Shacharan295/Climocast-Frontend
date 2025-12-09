@@ -11,6 +11,7 @@ export default function SearchBox({ onSearch }) {
   useEffect(() => {
     if (query.length < 2) {
       setSuggestions([]);
+      setShowDropdown(false);   // ✅ IMPORTANT FIX
       return;
     }
 

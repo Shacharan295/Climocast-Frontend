@@ -11,12 +11,14 @@ export default function SearchBox({ onSearch }) {
   useEffect(() => {
     if (query.length < 2) {
       setSuggestions([]);
-      setShowDropdown(false);   // ✅ IMPORTANT FIX
+      setShowDropdown(false);
       return;
     }
 
     const delayDebounce = setTimeout(async () => {
-      const res = await fetch(`/api/suggest?query=${query}`);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/suggest?query=${query}`
+      );
       const data = await res.json();
       setSuggestions(data);
       setShowDropdown(true);
@@ -45,15 +47,13 @@ export default function SearchBox({ onSearch }) {
       <input
         type="text"
         value={query}
-        onChange={(e) => {
-          setQuery(e.target.value);
-        }}
+        onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         className="w-full p-3 rounded-lg bg-white/20 backdrop-blur text-black"
         placeholder="Search city..."
       />
 
-      {/* --- DROPDOWN SUGGESTIONS --- */}
+      {/* --- DROPDOWN --- */}
       {showDropdown && suggestions.length > 0 && (
         <div className="absolute left-0 right-0 mt-1 bg-white/80 backdrop-blur rounded-lg shadow-lg p-2 z-10">
           {suggestions.map((city, i) => (

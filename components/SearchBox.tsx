@@ -29,16 +29,19 @@ export default function SearchBox({ onSearch }) {
 
   // --- ON SELECT A SUGGESTION ---
   const handleSelect = (city) => {
-    setQuery(city);
-    setShowDropdown(false);
     onSearch(city);
+    setQuery("");              // ⭐ FIX — clear input
+    setShowDropdown(false);    // already here, good
+    setSuggestions([]);        // ⭐ FIX — remove dropdown list
   };
 
   // --- ON ENTER KEY SEARCH ---
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       onSearch(query);
+      setQuery("");            // ⭐ FIX — clear input after search
       setShowDropdown(false);
+      setSuggestions([]);      // ⭐ FIX
     }
   };
 
@@ -51,6 +54,7 @@ export default function SearchBox({ onSearch }) {
         onKeyDown={handleKeyDown}
         className="w-full p-3 rounded-lg bg-white/20 backdrop-blur text-black"
         placeholder="Search city..."
+        autoComplete="off"       // ⭐ FIX — prevents browser suggestions
       />
 
       {/* --- DROPDOWN --- */}

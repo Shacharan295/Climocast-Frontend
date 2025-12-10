@@ -186,8 +186,6 @@ export default function WeatherDashboard() {
             <div className="lg:col-span-2 flex flex-col gap-8">
               <ForecastCards forecast={weatherData.forecast} />
 
-             <ForecastCards forecast={weatherData.forecast} />
-
 <div
   className="
     bg-white/10 

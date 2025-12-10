@@ -27,7 +27,6 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
 
   return (
     <div className="w-full h-full">
-      {/* ⭐ TITLE FIX: Add the chart title back */}
       <h2 className="text-white text-lg font-semibold mb-2">
         24-Hour Temperature Trend
       </h2>
@@ -37,7 +36,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
           data={data}
           margin={{
             top: 5,
-            right: 20,   // ⭐ extra right margin → fixes last label cutoff
+            right: 20,
             left: 0,
             bottom: 10,
           }}
@@ -49,7 +48,10 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             </linearGradient>
           </defs>
 
+          {/* ONLY CHANGE HERE */}
           <CartesianGrid
+            horizontal={true}
+            vertical={false}
             strokeDasharray="3 3"
             stroke="rgba(255,255,255,0.25)"
           />
@@ -58,7 +60,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             dataKey="time"
             interval={0}
             tickMargin={10}
-            padding={{ left: 5, right: 10 }} // ⭐ increase right padding → fixes cutoff
+            padding={{ left: 5, right: 10 }}
             axisLine={false}
             tickLine={false}
             stroke="rgba(255,255,255,0.9)"

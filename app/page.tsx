@@ -30,8 +30,6 @@ function getEmoji(desc: string) {
   return "🌡️"
 }
 
-// same imports...
-
 export default function WeatherDashboard() {
   const [weatherData, setWeatherData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -75,20 +73,15 @@ export default function WeatherDashboard() {
     fetchWeather(currentCity)
   }, [])
 
-  // ❌ REMOVE ENTIRE generate24HourData FUNCTION
-  // ❌ REMOVE const hourlyData = generate24HourData()
-
-  // ⭐ NEW — REAL HOURLY DATA FROM BACKEND
   const hourlyData = weatherData?.hourly || []
+
   const guideForUI = weatherData
-  ? {
-      summary: weatherData.ai_guide.summary,
-      safety: weatherData.ai_guide.safety,
-      insight: weatherData.ai_guide.insight,
-    }
-  : null
-
-
+    ? {
+        summary: weatherData.ai_guide.summary,
+        safety: weatherData.ai_guide.safety,
+        insight: weatherData.ai_guide.insight,
+      }
+    : null
 
   const getBackgroundImage = () => {
     if (!weatherData) return "/images/default.jpg"
@@ -124,7 +117,6 @@ export default function WeatherDashboard() {
 
     return "/images/default.jpg"
   }
-
 
   return (
     <main
@@ -166,56 +158,56 @@ export default function WeatherDashboard() {
       )}
 
       {loading ? (
-  <div className="max-w-7xl mx-auto animate-pulse space-y-6">
-    <div className="h-64 bg-white/20 rounded-2xl" />
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="h-40 bg-white/20 rounded-2xl" />
-      <div className="h-40 bg-white/20 rounded-2xl" />
-      <div className="h-40 bg-white/20 rounded-2xl" />
-    </div>
-  </div>
-) : weatherData ? (
-  <div className="max-w-7xl mx-auto space-y-10">
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div>
-        <CurrentWeather data={weatherData} />
-      </div>
-
-      <div className="lg:col-span-2 flex flex-col gap-8">
-        <ForecastCards forecast={weatherData.forecast} />
-
-        {/* ⭐ Frosted Glass Chart Panel */}
-        <div
-          className="
-            bg-white/10 
-            backdrop-blur-xl 
-            rounded-2xl 
-            border border-white/20 
-            shadow-lg 
-            p-4 
-            transition-transform duration-300 
-            hover:-translate-y-1 hover:shadow-2xl
-          "
-        >
-          <div className="h-64">
-            <TwentyFourHourChart data={hourlyData} />
+        <div className="max-w-7xl mx-auto animate-pulse space-y-6">
+          <div className="h-64 bg-white/20 rounded-2xl" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="h-40 bg-white/20 rounded-2xl" />
+            <div className="h-40 bg-white/20 rounded-2xl" />
+            <div className="h-40 bg-white/20 rounded-2xl" />
           </div>
         </div>
+      ) : weatherData ? (
+        <div className="max-w-7xl mx-auto space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div>
+              <CurrentWeather data={weatherData} />
+            </div>
 
-        <WeatherPersonalityCard
-          city={currentCity}
-          temp={weatherData.temp}
-          category={weatherData.description}
-          wind={weatherData.wind_speed}
-          humidity={weatherData.humidity}
-          aqi={weatherData.air_quality?.aqi ?? null}
-          aqi_label={weatherData.air_quality?.label ?? null}
-        />
-      </div>
-    </div>
+            <div className="lg:col-span-2 flex flex-col gap-8">
+              <ForecastCards forecast={weatherData.forecast} />
 
-    {guideForUI && <AIGuideSection guide={guideForUI} />}
-  </div>
+              {/* ⭐ Frosted Glass Chart Panel — ONLY 2 REQUIRED CHANGES BELOW */}
+              <div
+                className="
+                  bg-white/10 
+                  backdrop-blur-xl 
+                  rounded-2xl 
+                  border border-white/20 
+                  shadow-lg 
+                  p-6         /* ⭐ increase padding */
+                  transition-transform duration-300 
+                  hover:-translate-y-1 hover:shadow-2xl
+                "
+              >
+                <div className="h-72">  {/* ⭐ increase height */}
+                  <TwentyFourHourChart data={hourlyData} />
+                </div>
+              </div>
+
+              <WeatherPersonalityCard
+                city={currentCity}
+                temp={weatherData.temp}
+                category={weatherData.description}
+                wind={weatherData.wind_speed}
+                humidity={weatherData.humidity}
+                aqi={weatherData.air_quality?.aqi ?? null}
+                aqi_label={weatherData.air_quality?.label ?? null}
+              />
+            </div>
+          </div>
+
+          {guideForUI && <AIGuideSection guide={guideForUI} />}
+        </div>
       ) : (
         <div className="max-w-7xl mx-auto text-white text-center text-xl">
           Could not load weather data.

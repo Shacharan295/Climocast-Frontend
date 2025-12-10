@@ -16,7 +16,7 @@ interface ChartProps {
 
 export default function TwentyFourHourChart({ data }: ChartProps) {
   return (
-    <div className="w-full h-72 flex flex-col">
+    <div className="w-full h-80 flex flex-col">
       
       {/* ⭐ Chart Title */}
       <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
@@ -26,8 +26,8 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
-            
-            {/* ⭐ Gradient */}
+
+            {/* ⭐ Gradient Fill */}
             <defs>
               <linearGradient id="gradientFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#4DBBFF" stopOpacity={0.9} />
@@ -40,17 +40,22 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
               stroke="rgba(255,255,255,0.25)"
             />
 
+            {/* ⭐ Show ALL labels (00:00 → 21:00) */}
             <XAxis
               dataKey="time"
               stroke="rgba(255,255,255,0.9)"
               style={{ fontSize: "12px" }}
               padding={{ left: 10, right: 10 }}
-              interval={2}
+              interval={0}                     // ✅ show all ticks
+              tick={{ fill: "white" }}
             />
 
+            {/* ⭐ Keep Y clean + dynamic (no negative dips) */}
             <YAxis
               stroke="rgba(255,255,255,0.9)"
               style={{ fontSize: "12px" }}
+              domain={["dataMin - 1", "dataMax + 1"]} // ⭐ prevents weird scaling
+              tick={{ fill: "white" }}
             />
 
             <Tooltip

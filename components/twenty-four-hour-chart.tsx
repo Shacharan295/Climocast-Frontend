@@ -16,18 +16,17 @@ interface ChartProps {
 
 export default function TwentyFourHourChart({ data }: ChartProps) {
   return (
-    <div className="w-full h-80 flex flex-col">
-      
-      {/* ⭐ Chart Title */}
+    <div className="w-full h-64 flex flex-col px-4 py-2">
+
+      {/* Title */}
       <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
-        24-Hour Temperature
+        24-Hour Temperature Trend
       </h2>
 
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
 
-            {/* ⭐ Gradient Fill */}
             <defs>
               <linearGradient id="gradientFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#4DBBFF" stopOpacity={0.9} />
@@ -35,26 +34,20 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
               </linearGradient>
             </defs>
 
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.25)"
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.25)" />
 
-            {/* ⭐ Show ALL labels (00:00 → 21:00) */}
             <XAxis
               dataKey="time"
               stroke="rgba(255,255,255,0.9)"
               style={{ fontSize: "12px" }}
-              padding={{ left: 10, right: 10 }}
-              interval={0}                     // ✅ show all ticks
+              interval={1}
               tick={{ fill: "white" }}
             />
 
-            {/* ⭐ Keep Y clean + dynamic (no negative dips) */}
             <YAxis
               stroke="rgba(255,255,255,0.9)"
               style={{ fontSize: "12px" }}
-              domain={["dataMin - 1", "dataMax + 1"]} // ⭐ prevents weird scaling
+              domain={[0, "dataMax + 5"]}
               tick={{ fill: "white" }}
             />
 
@@ -78,6 +71,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
               isAnimationActive={true}
               animationDuration={1200}
             />
+
           </AreaChart>
         </ResponsiveContainer>
       </div>

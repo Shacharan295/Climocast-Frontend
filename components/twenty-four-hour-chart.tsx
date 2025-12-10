@@ -16,55 +16,66 @@ interface ChartProps {
 
 export default function TwentyFourHourChart({ data }: ChartProps) {
   return (
-    <div className="w-full h-64">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
-          {/* ⭐ Your gradient */}
-          <defs>
-            <linearGradient id="gradientFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#4DBBFF" stopOpacity={0.9} />
-              <stop offset="95%" stopColor="#1A6FFF" stopOpacity={0.2} />
-            </linearGradient>
-          </defs>
+    <div className="w-full h-72 flex flex-col">
+      
+      {/* ⭐ Chart Title */}
+      <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
+        24-Hour Temperature
+      </h2>
 
-          {/* ⭐ Your chart components */}
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.25)" />
+      <div className="flex-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data}>
+            
+            {/* ⭐ Gradient */}
+            <defs>
+              <linearGradient id="gradientFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#4DBBFF" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#1A6FFF" stopOpacity={0.2} />
+              </linearGradient>
+            </defs>
 
-          <XAxis
-            dataKey="time"
-            stroke="rgba(255,255,255,0.9)"
-            style={{ fontSize: "12px" }}
-            padding={{ left: 10, right: 10 }}
-            interval={2}
-          />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.25)"
+            />
 
-          <YAxis
-            stroke="rgba(255,255,255,0.9)"
-            style={{ fontSize: "12px" }}
-          />
+            <XAxis
+              dataKey="time"
+              stroke="rgba(255,255,255,0.9)"
+              style={{ fontSize: "12px" }}
+              padding={{ left: 10, right: 10 }}
+              interval={2}
+            />
 
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "rgba(20,40,80,0.6)",
-              backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255,255,255,0.4)",
-              borderRadius: "12px",
-              color: "white",
-            }}
-            cursor={{ fill: "rgba(255,255,255,0.15)" }}
-          />
+            <YAxis
+              stroke="rgba(255,255,255,0.9)"
+              style={{ fontSize: "12px" }}
+            />
 
-          <Area
-            type="monotone"
-            dataKey="temp"
-            stroke="#3EA8FF"
-            strokeWidth={3}
-            fill="url(#gradientFill)"
-            isAnimationActive={true}
-            animationDuration={1200}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "rgba(20,40,80,0.6)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255,255,255,0.4)",
+                borderRadius: "12px",
+                color: "white",
+              }}
+              cursor={{ fill: "rgba(255,255,255,0.15)" }}
+            />
+
+            <Area
+              type="monotone"
+              dataKey="temp"
+              stroke="#3EA8FF"
+              strokeWidth={3}
+              fill="url(#gradientFill)"
+              isAnimationActive={true}
+              animationDuration={1200}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

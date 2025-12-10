@@ -17,24 +17,22 @@ interface ChartProps {
 export default function TwentyFourHourChart({ data }: ChartProps) {
   if (!data || data.length === 0) return null;
 
-  // -------------------------------
-  // CLEAN, EVEN Y-AXIS
-  // -------------------------------
   const temps = data.map((d) => d.temp);
-  const min = Math.min(...temps);
-  const max = Math.max(...temps);
 
-  // Expand small ranges to avoid ugly flat charts
-  let minY = Math.floor(min) - 1;
-  let maxY = Math.ceil(max) + 1;
+  // ⭐ Always fill down to the chart bottom (0°C baseline)
+  let minY = 0;
+
+  let maxY = Math.ceil(Math.max(...temps)) + 1;
+
+  // Keep at least 6-degree vertical spacing
   if (maxY - minY < 6) {
     maxY = minY + 6;
   }
 
-  // Even 5 ticks (clean spacing)
+  // Even 5 ticks
   const step = (maxY - minY) / 4;
   const ticks = Array.from({ length: 5 }, (_, i) =>
-    Math.round(minY + i * step)
+    Math.round(minY + step * i)
   );
 
   return (
@@ -46,9 +44,9 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 10, right: 15, left: 0, bottom: 10 }}
+          margin={{ top: 10, right: 0, left: 0, bottom: 10 }}
         >
-          {/* BLUE fills fully to bottom */}
+          {/* BLUE gradient */}
           <defs>
             <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#3EA8FF" stopOpacity={0.9} />
@@ -56,7 +54,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             </linearGradient>
           </defs>
 
-          {/* clean grid */}
+          {/* Grid */}
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="rgba(255,255,255,0.25)"
@@ -71,7 +69,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             tickMargin={10}
           />
 
-          {/* Y-axis evenly spaced */}
+          {/* ⭐ Y-axis now starts at 0 → fill touches bottom */}
           <YAxis
             stroke="rgba(255,255,255,0.9)"
             domain={[minY, maxY]}
@@ -81,6 +79,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             tickMargin={10}
           />
 
+          {/* Tooltip */}
           <Tooltip
             contentStyle={{
               backgroundColor: "rgba(20,40,80,0.7)",
@@ -92,7 +91,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             cursor={{ stroke: "white", strokeWidth: 1 }}
           />
 
-          {/* The area line */}
+          {/* Line + Filled Area */}
           <Area
             type="monotone"
             dataKey="temp"

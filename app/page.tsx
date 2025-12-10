@@ -1,226 +1,111 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import SearchBox from "@/components/SearchBox"
-import CurrentWeather from "@/components/current-weather"
-import ForecastCards from "@/components/forecast-cards"
-import AIGuideSection from "@/components/ai-guide-section"
-import TwentyFourHourChart from "@/components/twenty-four-hour-chart"
-import WeatherPersonalityCard from "@/components/weather-personality-card"
-import Image from "next/image"
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-// ⭐ Emoji Converter
-function getEmoji(desc: string) {
-  const d = desc.toLowerCase()
-
-  if (d.includes("clear")) return "☀️"
-  if (d.includes("few clouds")) return "🌤️"
-  if (d.includes("scattered clouds")) return "⛅"
-  if (d.includes("broken clouds")) return "🌥️"
-  if (d.includes("overcast")) return "☁️"
-  if (d.includes("cloud")) return "☁️"
-  if (d.includes("light rain")) return "🌦️"
-  if (d.includes("moderate rain") || d.includes("heavy rain")) return "🌧️"
-  if (d.includes("rain")) return "🌧️"
-  if (d.includes("thunder")) return "⛈️"
-  if (d.includes("light snow")) return "🌨️"
-  if (d.includes("snow")) return "❄️"
-  if (d.includes("fog") || d.includes("mist") || d.includes("haze")) return "🌫️"
-
-  return "🌡️"
+interface ChartProps {
+  data: { time: string; temp: number }[];
 }
 
-export default function WeatherDashboard() {
-  const [weatherData, setWeatherData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [currentCity, setCurrentCity] = useState("New York")
-  const [suggestions, setSuggestions] = useState<string[] | null>(null)
+export default function TwentyFourHourChart({ data }: ChartProps) {
+  if (!data || data.length === 0) return null;
 
-  async function fetchWeather(city: string) {
-    setLoading(true)
-    setSuggestions(null)
+  // -------------------------------
+  // 1) CLEAN EVEN Y-AXIS DOMAIN
+  // -------------------------------
+  const temps = data.map((d) => d.temp);
+  const min = Math.min(...temps);
+  const max = Math.max(...temps);
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/weather?city=${encodeURIComponent(city)}`
-    )
+  // Round nice values
+  const minY = Math.floor(min) - 1; // buffer = 1
+  const maxY = Math.ceil(max) + 1;
 
-    const data = await res.json()
-
-    if (data.error === "city_not_found") {
-      setWeatherData(null)
-      setSuggestions(data.suggestions)
-      setLoading(false)
-      return
-    }
-
-    const fixedForecast = data.forecast.map((f: any) => ({
-      day: f.day,
-      temp: f.temp,
-      desc: f.description,
-      emoji: getEmoji(f.description),
-    }))
-
-    setWeatherData({
-      ...data,
-      forecast: fixedForecast,
-    })
-
-    setCurrentCity(city)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    fetchWeather(currentCity)
-  }, [])
-
-  // ⭐ FIX: Sort X-axis time order
-  const hourlyData =
-    weatherData?.hourly
-      ?.sort((a: any, b: any) => {
-        const t1 = parseInt(a.time.replace(":", ""));
-        const t2 = parseInt(b.time.replace(":", ""));
-        return t1 - t2;
-      }) || [];
-
-  const guideForUI = weatherData
-    ? {
-        summary: weatherData.ai_guide.summary,
-        safety: weatherData.ai_guide.safety,
-        insight: weatherData.ai_guide.insight,
-      }
-    : null
-
-  const getBackgroundImage = () => {
-    if (!weatherData) return "/images/default.jpg"
-    const desc = weatherData.description.toLowerCase()
-
-    if (desc.includes("clear")) return "/images/clear.jpg"
-    if (desc.includes("few clouds")) return "/images/few_clouds.jpg"
-    if (desc.includes("scattered clouds")) return "/images/scattered_clouds.jpg"
-    if (desc.includes("broken clouds")) return "/images/broken_clouds.jpg"
-    if (desc.includes("overcast")) return "/images/overcast.jpg"
-    if (desc.includes("freezing rain")) return "/images/freezing_rain.jpg"
-    if (desc.includes("light rain")) return "/images/light_rain.jpg"
-    if (desc.includes("moderate rain")) return "/images/moderate_rain.jpg"
-    if (desc.includes("heavy rain")) return "/images/heavy_rain.jpg"
-    if (desc.includes("rain")) return "/images/rainy.jpg"
-    if (desc.includes("drizzle")) return "/images/drizzle.jpg"
-    if (desc.includes("thunderstorm")) return "/images/thunderstorm.jpg"
-    if (desc.includes("light snow")) return "/images/light_snow.jpg"
-    if (desc.includes("heavy snow")) return "/images/heavy_snow.jpg"
-    if (desc.includes("snow")) return "/images/snow.jpg"
-    if (desc.includes("sleet")) return "/images/sleet.jpg"
-    if (
-      desc.includes("fog") ||
-      desc.includes("mist") ||
-      desc.includes("haze") ||
-      desc.includes("smoke") ||
-      desc.includes("dust") ||
-      desc.includes("sand")
-    )
-      return "/images/fog.jpg"
-
-    if (desc.includes("tornado") || desc.includes("squall"))
-      return "/images/extreme.jpg"
-
-    return "/images/default.jpg"
-  }
+  // Y-axis ticks (even spacing)
+  const ticks = [
+    minY,
+    Math.floor((minY + maxY) / 2),
+    maxY,
+  ];
 
   return (
-    <main
-      className="min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000 p-6"
-      style={{ backgroundImage: `url(${getBackgroundImage()})` }}
-    >
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Image
-            src="/climocast-icon.png"
-            width={50}
-            height={50}
-            alt="Climocast Logo"
-            className="rounded-xl"
+    <div className="w-full h-full flex flex-col">
+      <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
+        24-Hour Temperature Trend
+      </h2>
+
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={data}
+          margin={{ top: 20, right: 25, left: 0, bottom: 10 }}
+        >
+          {/* Full gradient that reaches the bottom */}
+          <defs>
+            <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3EA8FF" stopOpacity={0.9} />
+              <stop offset="100%" stopColor="#3EA8FF" stopOpacity={0.25} />
+            </linearGradient>
+          </defs>
+
+          {/* Clean even grid */}
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="rgba(255,255,255,0.25)"
+            horizontal={true}
+            vertical={true}
           />
-          <h1 className="text-4xl font-bold text-white drop-shadow-lg">
-            Climocast
-          </h1>
-        </div>
 
-        <SearchBox onSearch={fetchWeather} />
-      </div>
+          {/* X-Axis */}
+          <XAxis
+            dataKey="time"
+            stroke="rgba(255,255,255,0.9)"
+            style={{ fontSize: "13px" }}
+            interval={0}
+            tickMargin={10}
+          />
 
-      {suggestions && (
-        <div className="max-w-7xl mx-auto text-white mb-6">
-          <p className="text-lg mb-2">Did you mean:</p>
-          <div className="flex gap-3 flex-wrap">
-            {suggestions.map((city) => (
-              <button
-                key={city}
-                onClick={() => fetchWeather(city)}
-                className="px-4 py-2 bg-white/20 rounded-lg backdrop-blur hover:bg-white/30"
-              >
-                {city}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+          {/* PERFECT EVEN Y-AXIS */}
+          <YAxis
+            stroke="rgba(255,255,255,0.9)"
+            domain={[minY, maxY]}
+            ticks={ticks}
+            tickMargin={10}
+            style={{ fontSize: "13px" }}
+            allowDecimals={false}
+            axisLine={true}
+          />
 
-      {loading ? (
-        <div className="max-w-7xl mx-auto animate-pulse space-y-6">
-          <div className="h-64 bg-white/20 rounded-2xl" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-40 bg-white/20 rounded-2xl" />
-            <div className="h-40 bg-white/20 rounded-2xl" />
-            <div className="h-40 bg-white/20 rounded-2xl" />
-          </div>
-        </div>
-      ) : weatherData ? (
-        <div className="max-w-7xl mx-auto space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div>
-              <CurrentWeather data={weatherData} />
-            </div>
+          {/* Tooltip */}
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "rgba(20,40,80,0.7)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.4)",
+              borderRadius: "10px",
+              color: "white",
+            }}
+            cursor={{ stroke: "white", strokeWidth: 1 }}
+          />
 
-            <div className="lg:col-span-2 flex flex-col gap-8">
-              <ForecastCards forecast={weatherData.forecast} />
-
-              {/* ⭐ Frosted Chart Panel */}
-              <div
-                className="
-                  bg-white/10 
-                  backdrop-blur-xl 
-                  rounded-2xl 
-                  border border-white/20 
-                  shadow-lg 
-                  p-6
-                  transition-transform duration-300 
-                  hover:-translate-y-1 hover:shadow-2xl
-                "
-              >
-                <div className="h-72">
-                  <TwentyFourHourChart data={hourlyData} />
-                </div>
-              </div>
-
-              <WeatherPersonalityCard
-                city={currentCity}
-                temp={weatherData.temp}
-                category={weatherData.description}
-                wind={weatherData.wind_speed}
-                humidity={weatherData.humidity}
-                aqi={weatherData.air_quality?.aqi ?? null}
-                aqi_label={weatherData.air_quality?.label ?? null}
-              />
-            </div>
-          </div>
-
-          {guideForUI && <AIGuideSection guide={guideForUI} />}
-        </div>
-      ) : (
-        <div className="max-w-7xl mx-auto text-white text-center text-xl">
-          Could not load weather data.
-        </div>
-      )}
-    </main>
-  )
+          {/* Area Line */}
+          <Area
+            type="monotone"
+            dataKey="temp"
+            stroke="#3EA8FF"
+            strokeWidth={3}
+            fill="url(#tempFill)"
+            fillOpacity={1}
+            isAnimationActive={true}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }

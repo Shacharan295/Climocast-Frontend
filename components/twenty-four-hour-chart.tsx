@@ -18,20 +18,48 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   if (!data || data.length === 0) return null;
 
   // -------------------------------
-  // ⭐ CLEAN Y-AXIS RANGES
+  // ⭐ ALWAYS FIX X-AXIS HOURS (UI CLEAN)
   // -------------------------------
-  const temps = data.map((d) => d.temp);
-  const tMin = Math.min(...temps);
-  const tMax = Math.max(...temps);
+  const fixedHours = [
+    "00:00",
+    "03:00",
+    "06:00",
+    "09:00",
+    "12:00",
+    "15:00",
+    "18:00",
+    "21:00",
+  ];
 
-  // Add padding so chart doesn't touch edges
-  const buffer = 2;
+  // map backend values into fixed UI hours
+  const lookup = Object.fromEntries(data.map((d) => [d.time, d.temp]));
 
-  const minY = Math.floor((tMin - buffer) / 2) * 2;
-  const maxY = Math.ceil((tMax + buffer) / 2) * 2;
+  const alignedData = fixedHours.map((h) => ({
+    time: h,
+    temp: lookup[h] ?? null, // filled later
+  }));
+
+  // -------------------------------
+  // ⭐ FILL MISSING TEMPS (fallback)
+  // -------------------------------
+  for (let i = 0; i < alignedData.length; i++) {
+    if (alignedData[i].temp === null) {
+      alignedData[i].temp =
+        alignedData[i - 1]?.temp ??
+        alignedData.find((d) => d.temp !== null)?.temp ??
+        0;
+    }
+  }
+
+  // -------------------------------
+  // ⭐ CLEAN Y-axis
+  // -------------------------------
+  const temps = alignedData.map((d) => d.temp);
+  const min = Math.min(...temps) - 2;
+  const max = Math.max(...temps) + 2;
 
   return (
-    <div className="w-full h-80 flex flex-col">
+    <div className="w-full h-72 flex flex-col">
       <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
         24-Hour Temperature Trend
       </h2>
@@ -39,60 +67,51 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={data}
-            // ⭐ FIX 1: Proper padding inside chart (prevents overflow)
-            margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
+            data={alignedData}
+            margin={{ top: 10, right: 15, left: 0, bottom: 10 }} // ⭐ FIX PANEL FIT
           >
             <defs>
-              <linearGradient id="gradientFill" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#4DBBFF" stopOpacity={0.9} />
                 <stop offset="95%" stopColor="#1A6FFF" stopOpacity={0.15} />
               </linearGradient>
             </defs>
 
-            {/* ⭐ Clean, readable grid like your reference */}
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="rgba(255,255,255,0.25)"
-              vertical={true}
-              horizontal={true}
             />
 
-            {/* ⭐ PERFECT X-axis */}
             <XAxis
               dataKey="time"
               tick={{ fill: "white", fontSize: 13 }}
-              interval={0} // shows all 8 labels: 00,03,...21
-              minTickGap={20}
-              padding={{ left: 10, right: 10 }}
+              interval={0}      // ⭐ show all hours
+              minTickGap={5}
+              padding={{ left: 5, right: 5 }}
             />
 
-            {/* ⭐ CLEAN Y-axis like the screenshot */}
             <YAxis
-              domain={[minY, maxY]}
-              tick={{ fill: "white", fontSize: 13 }}
+              domain={[min, max]}     // ⭐ nice padding
               allowDecimals={false}
-              tickCount={7} // forces clean steps: -4, -2, 0, 2, 4, 6, 8
+              tick={{ fill: "white", fontSize: 13 }}
+              tickCount={7}           // ⭐ clean labels
             />
 
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(25,40,70,0.7)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,255,255,0.3)",
+                backgroundColor: "rgba(20,40,80,0.6)",
+                backdropFilter: "blur(12px)",
                 borderRadius: "12px",
                 color: "white",
               }}
-              cursor={{ fill: "rgba(255,255,255,0.1)" }}
             />
 
-            {/* ⭐ Smooth line */}
             <Area
               type="monotone"
               dataKey="temp"
               stroke="#4DBBFF"
               strokeWidth={3}
-              fill="url(#gradientFill)"
+              fill="url(#grad)"
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -17,9 +17,8 @@ interface ChartProps {
 // ⭐ Clean Y-axis → NO EMPTY SPACE
 function getYAxisRange(data: { temp: number }[]) {
   const temps = data.map((d) => d.temp);
-  const min = Math.floor(Math.min(...temps)); // round down to avoid bottom gap
-  const max = Math.ceil(Math.max(...temps)) + 2; // small top padding
-
+  const min = Math.floor(Math.min(...temps));
+  const max = Math.ceil(Math.max(...temps)) + 2;
   return { min, max };
 }
 
@@ -28,14 +27,19 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
 
   return (
     <div className="w-full h-full">
-      <ResponsiveContainer width="100%" height="100%">
+      {/* ⭐ TITLE FIX: Add the chart title back */}
+      <h2 className="text-white text-lg font-semibold mb-2">
+        24-Hour Temperature Trend
+      </h2>
+
+      <ResponsiveContainer width="100%" height="90%">
         <AreaChart
           data={data}
           margin={{
             top: 5,
-            right: 10,
+            right: 20,   // ⭐ extra right margin → fixes last label cutoff
             left: 0,
-            bottom: 10, // ⭐ ensures X-axis labels stay inside
+            bottom: 10,
           }}
         >
           <defs>
@@ -45,33 +49,32 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             </linearGradient>
           </defs>
 
-          {/* ⭐ Soft grid like your reference image */}
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.25)" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="rgba(255,255,255,0.25)"
+          />
 
-          {/* ⭐ X-axis FIXED: all labels visible + last label inside panel */}
           <XAxis
             dataKey="time"
-            interval={0} // show all labels
-            tickMargin={10} // spacing from axis
-            padding={{ left: 5, right: 5 }} // ⭐ prevents clipping
+            interval={0}
+            tickMargin={10}
+            padding={{ left: 5, right: 10 }} // ⭐ increase right padding → fixes cutoff
             axisLine={false}
             tickLine={false}
             stroke="rgba(255,255,255,0.9)"
             style={{ fontSize: "12px" }}
           />
 
-          {/* ⭐ Y-axis FIXED: clean spacing and fully inside panel */}
           <YAxis
             domain={[min, max]}
             tickMargin={8}
-            padding={{ top: 5 }} // prevents tick touching top border
+            padding={{ top: 5 }}
             axisLine={false}
             tickLine={false}
             stroke="rgba(255,255,255,0.9)"
             style={{ fontSize: "12px" }}
           />
 
-          {/* Tooltip kept same */}
           <Tooltip
             contentStyle={{
               backgroundColor: "rgba(20,40,80,0.6)",
@@ -82,7 +85,6 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             }}
           />
 
-          {/* ⭐ Final polished curve */}
           <Area
             type="monotone"
             dataKey="temp"

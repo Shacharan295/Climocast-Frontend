@@ -168,59 +168,58 @@ export default function WeatherDashboard() {
       )}
 
       {loading ? (
-        <div className="max-w-7xl mx-auto animate-pulse space-y-6">
-          <div className="h-64 bg-white/20 rounded-2xl" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-40 bg-white/20 rounded-2xl" />
-            <div className="h-40 bg-white/20 rounded-2xl" />
-            <div className="h-40 bg-white/20 rounded-2xl" />
+  <div className="max-w-7xl mx-auto animate-pulse space-y-6">
+    <div className="h-64 bg-white/20 rounded-2xl" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="h-40 bg-white/20 rounded-2xl" />
+      <div className="h-40 bg-white/20 rounded-2xl" />
+      <div className="h-40 bg-white/20 rounded-2xl" />
+    </div>
+  </div>
+) : weatherData ? (
+  <div className="max-w-7xl mx-auto space-y-10">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div>
+        <CurrentWeather data={weatherData} />
+      </div>
+
+      <div className="lg:col-span-2 flex flex-col gap-8">
+        <ForecastCards forecast={weatherData.forecast} />
+
+        {/* ⭐ Frosted Glass Chart Panel */}
+        <div
+          className="
+            bg-white/10 
+            backdrop-blur-xl 
+            rounded-2xl 
+            border border-white/20 
+            shadow-lg 
+            p-4 
+            transition-transform duration-300 
+            hover:-translate-y-1 hover:shadow-2xl
+          "
+        >
+          <div className="h-64">
+            <TwentyFourHourChart data={hourlyData} />
           </div>
         </div>
-      ) : weatherData ? (
-        <div className="max-w-7xl mx-auto space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div>
-              <CurrentWeather data={weatherData} />
-            </div>
 
-            <div className="lg:col-span-2 flex flex-col gap-8">
-              <ForecastCards forecast={weatherData.forecast} />
+        <WeatherPersonalityCard
+          city={currentCity}
+          temp={weatherData.temp}
+          category={weatherData.description}
+          wind={weatherData.wind_speed}
+          humidity={weatherData.humidity}
+          aqi={weatherData.air_quality?.aqi ?? null}
+          aqi_label={weatherData.air_quality?.label ?? null}
+        />
+      </div>
+    </div>
 
-<div
-  className="
-    bg-white/10 
-    backdrop-blur-xl 
-    rounded-2xl 
-    border border-white/20 
-    shadow-lg 
-    p-4 
-    transition-transform duration-300 
-    hover:-translate-y-1 hover:shadow-2xl
-  "
->
-  <div className="h-64">
-    <TwentyFourHourChart data={hourlyData} />
+    {guideForUI && <AIGuideSection guide={guideForUI} />}
   </div>
-</div>
-
-<WeatherPersonalityCard
-  city={currentCity}
-  temp={weatherData.temp}
-  category={weatherData.description}
-  wind={weatherData.wind_speed}
-  humidity={weatherData.humidity}
-  aqi={weatherData.air_quality?.aqi ?? null}
-  aqi_label={weatherData.air_quality?.label ?? null}
-/>
-
-
-          {guideForUI && <AIGuideSection guide={guideForUI} />}
-        </div>
-      ) : (
-        <div className="max-w-7xl mx-auto text-white text-center text-xl">
-          Could not load weather data.
-        </div>
-      )}
-    </main>
-  )
-}
+) : (
+  <div className="max-w-7xl mx-auto text-white text-center text-xl">
+    Could not load weather data.
+  </div>
+)}

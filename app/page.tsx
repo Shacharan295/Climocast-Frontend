@@ -218,8 +218,11 @@ export default function WeatherDashboard() {
 
     {guideForUI && <AIGuideSection guide={guideForUI} />}
   </div>
-) : (
-  <div className="max-w-7xl mx-auto text-white text-center text-xl">
-    Could not load weather data.
-  </div>
-)}
+      ) : (
+        <div className="max-w-7xl mx-auto text-white text-center text-xl">
+          Could not load weather data.
+        </div>
+      )}
+    </main>
+  )
+}

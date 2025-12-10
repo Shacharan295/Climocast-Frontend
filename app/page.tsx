@@ -17,26 +17,27 @@ interface ChartProps {
 export default function TwentyFourHourChart({ data }: ChartProps) {
   if (!data || data.length === 0) return null;
 
-  // -------------------------------
-  // 1) CLEAN EVEN Y-AXIS DOMAIN
-  // -------------------------------
+  // Clean Y-axis domain
   const temps = data.map((d) => d.temp);
   const min = Math.min(...temps);
   const max = Math.max(...temps);
 
-  // Round nice values
-  const minY = Math.floor(min) - 1; // buffer = 1
+  // Round nicely
+  const minY = Math.floor(min) - 1;
   const maxY = Math.ceil(max) + 1;
 
-  // Y-axis ticks (even spacing)
+  // Even 5 ticks
+  const step = (maxY - minY) / 4;
   const ticks = [
     minY,
-    Math.floor((minY + maxY) / 2),
+    minY + step,
+    minY + step * 2,
+    minY + step * 3,
     maxY,
-  ];
+  ].map((v) => Math.round(v));
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-72 flex flex-col"> {/* FIXED HEIGHT! */}
       <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
         24-Hour Temperature Trend
       </h2>
@@ -44,25 +45,20 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 20, right: 25, left: 0, bottom: 10 }}
+          margin={{ top: 10, right: 25, left: 0, bottom: 10 }}
         >
-          {/* Full gradient that reaches the bottom */}
           <defs>
             <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#3EA8FF" stopOpacity={0.9} />
-              <stop offset="100%" stopColor="#3EA8FF" stopOpacity={0.25} />
+              <stop offset="100%" stopColor="#3EA8FF" stopOpacity={0.4} />
             </linearGradient>
           </defs>
 
-          {/* Clean even grid */}
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="rgba(255,255,255,0.25)"
-            horizontal={true}
-            vertical={true}
           />
 
-          {/* X-Axis */}
           <XAxis
             dataKey="time"
             stroke="rgba(255,255,255,0.9)"
@@ -71,7 +67,6 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             tickMargin={10}
           />
 
-          {/* PERFECT EVEN Y-AXIS */}
           <YAxis
             stroke="rgba(255,255,255,0.9)"
             domain={[minY, maxY]}
@@ -79,10 +74,8 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             tickMargin={10}
             style={{ fontSize: "13px" }}
             allowDecimals={false}
-            axisLine={true}
           />
 
-          {/* Tooltip */}
           <Tooltip
             contentStyle={{
               backgroundColor: "rgba(20,40,80,0.7)",
@@ -94,15 +87,12 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             cursor={{ stroke: "white", strokeWidth: 1 }}
           />
 
-          {/* Area Line */}
           <Area
             type="monotone"
             dataKey="temp"
             stroke="#3EA8FF"
             strokeWidth={3}
             fill="url(#tempFill)"
-            fillOpacity={1}
-            isAnimationActive={true}
           />
         </AreaChart>
       </ResponsiveContainer>

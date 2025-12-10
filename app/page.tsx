@@ -30,6 +30,8 @@ function getEmoji(desc: string) {
   return "🌡️"
 }
 
+// same imports...
+
 export default function WeatherDashboard() {
   const [weatherData, setWeatherData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -73,6 +75,21 @@ export default function WeatherDashboard() {
     fetchWeather(currentCity)
   }, [])
 
+  // ❌ REMOVE ENTIRE generate24HourData FUNCTION
+  // ❌ REMOVE const hourlyData = generate24HourData()
+
+  // ⭐ NEW — REAL HOURLY DATA FROM BACKEND
+  const hourlyData = weatherData?.hourly || []
+  const guideForUI = weatherData
+  ? {
+      summary: weatherData.ai_guide.summary,
+      safety: weatherData.ai_guide.safety,
+      insight: weatherData.ai_guide.insight,
+    }
+  : null
+
+
+
   const getBackgroundImage = () => {
     if (!weatherData) return "/images/default.jpg"
     const desc = weatherData.description.toLowerCase()
@@ -108,25 +125,6 @@ export default function WeatherDashboard() {
     return "/images/default.jpg"
   }
 
-  const generate24HourData = () => {
-    const list = []
-    for (let i = 0; i < 24; i++) {
-      const hour = i.toString().padStart(2, "0") + ":00"
-      const temp = Math.floor(15 + Math.sin(i / 4) * 8 + Math.random() * 3)
-      list.push({ time: hour, temp })
-    }
-    return list
-  }
-
-  const hourlyData = generate24HourData()
-
-  const guideForUI = weatherData
-    ? {
-        summary: weatherData.ai_guide.summary,
-        safety: weatherData.ai_guide.safety,
-        insight: weatherData.ai_guide.insight,
-      }
-    : null
 
   return (
     <main

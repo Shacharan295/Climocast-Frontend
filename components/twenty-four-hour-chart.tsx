@@ -14,20 +14,16 @@ interface ChartProps {
   data: { time: string; temp: number }[];
 }
 
-// ⭐ Utility: compute clean rounded Y-axis range
+// ⭐ Clean Y-axis → NO EMPTY SPACE
 function getYAxisRange(data: { temp: number }[]) {
-  if (!data || data.length === 0) return { min: -5, max: 5 };
-
-  const temps = data.map((d) => d.temp);
+  const temps = data.map(d => d.temp);
   const min = Math.min(...temps);
   const max = Math.max(...temps);
 
-  // round down to nearest multiple of 2
-  const cleanMin = Math.floor((min - 1) / 2) * 2;
-  // round up to nearest multiple of 2
-  const cleanMax = Math.ceil((max + 1) / 2) * 2;
-
-  return { min: cleanMin, max: cleanMax };
+  return {
+    min: min,           // EXACT lowest temp → NO EMPTY SPACE
+    max: max + 2        // small top padding for readability
+  };
 }
 
 export default function TwentyFourHourChart({ data }: ChartProps) {
@@ -35,6 +31,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
 
   return (
     <div className="w-full h-72">
+
       <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
         24-Hour Temperature Trend
       </h2>
@@ -42,9 +39,8 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+          margin={{ top: 0, right: 0, left: 0, bottom: 0 }}  // ⭐ NO EXTRA SPACE
         >
-          {/* Gradient fill */}
           <defs>
             <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#4DBBFF" stopOpacity={0.9} />
@@ -52,30 +48,27 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             </linearGradient>
           </defs>
 
-          {/* Clean dashed grid */}
           <CartesianGrid
-            strokeDasharray="4 4"
+            strokeDasharray="3 3"
             stroke="rgba(255,255,255,0.25)"
           />
 
-          {/* Clean X-axis */}
+          {/* ⭐ Clean X-axis */}
           <XAxis
             dataKey="time"
             stroke="rgba(255,255,255,0.9)"
-            style={{ fontSize: "12px", fontWeight: 500 }}
-            tickMargin={8}
-            interval={0} // show all times, evenly spaced
+            style={{ fontSize: "12px" }}
+            interval={0}
+            tickMargin={6}
           />
 
-          {/* Smart Y-axis */}
+          {/* ⭐ Y-axis starts at EXACT lowest temp → no empty gap */}
           <YAxis
+            domain={[min, max]}
             stroke="rgba(255,255,255,0.9)"
-            domain={[min, max]} // auto-cleaned range
-            tickCount={6}
-            style={{ fontSize: "12px", fontWeight: 500 }}
+            style={{ fontSize: "12px" }}
           />
 
-          {/* Tooltip */}
           <Tooltip
             contentStyle={{
               backgroundColor: "rgba(20,40,80,0.6)",
@@ -84,17 +77,14 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
               border: "1px solid rgba(255,255,255,0.35)",
               color: "white",
             }}
-            cursor={{ stroke: "#ffffff", strokeWidth: 1 }}
           />
 
-          {/* Area line */}
           <Area
             type="monotone"
             dataKey="temp"
             stroke="#4DBBFF"
             strokeWidth={3}
             fill="url(#tempGradient)"
-            isAnimationActive={true}
           />
         </AreaChart>
       </ResponsiveContainer>

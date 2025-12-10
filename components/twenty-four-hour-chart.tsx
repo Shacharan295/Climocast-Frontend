@@ -14,15 +14,40 @@ interface ChartProps {
   data: { time: string; temp: number }[];
 }
 
+// Generate clean Y-axis ticks
+function getTicks(min: number, max: number) {
+  const ticks = [];
+
+  // Force min
+  ticks.push(min);
+
+  // Add 0 only if data crosses below and above
+  if (min < 0 && max > 0) {
+    ticks.push(0);
+  }
+
+  // Middle
+  const mid = Math.round((min + max) / 2);
+  if (!ticks.includes(mid)) ticks.push(mid);
+
+  // Force max
+  ticks.push(max);
+
+  return ticks.sort((a, b) => a - b);
+}
+
 export default function TwentyFourHourChart({ data }: ChartProps) {
+  if (!data || data.length === 0) return null;
+
   const temps = data.map(d => d.temp);
+  const minTemp = Math.min(...temps);
+  const maxTemp = Math.max(...temps);
 
-  const minY = Math.floor(Math.min(...temps) / 2) * 2 - 2;
-  const maxY = Math.ceil(Math.max(...temps) / 2) * 2 + 2;
+  // Expand slightly for breathing room
+  const safeMin = Math.floor(minTemp);
+  const safeMax = Math.ceil(maxTemp);
 
-  // Clean 3 ticks only (top, mid, bottom)
-  const midY = Math.round((minY + maxY) / 2);
-  const ticks = [maxY, midY, minY];
+  const ticks = getTicks(safeMin, safeMax);
 
   return (
     <div className="w-full h-72 flex flex-col">
@@ -32,40 +57,39 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
 
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            
+          <AreaChart data={data} margin={{ top: 20, right: 20, bottom: 10, left: 20 }}>
             <defs>
               <linearGradient id="gradientFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#4DBBFF" stopOpacity={0.9} />
-                <stop offset="95%" stopColor="#1A6FFF" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#1A6FFF" stopOpacity={0.2} />
               </linearGradient>
             </defs>
 
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.25)" />
 
-            <YAxis
-              ticks={ticks}
-              domain={[minY, maxY]}
-              stroke="rgba(255,255,255,0.9)"
-              style={{ fontSize: "12px" }}
-              allowDataOverflow
-            />
-
             <XAxis
               dataKey="time"
               stroke="rgba(255,255,255,0.9)"
-              style={{ fontSize: "12px" }}
+              style={{ fontSize: "13px" }}
+              tickMargin={10}
+            />
+
+            <YAxis
+              stroke="rgba(255,255,255,0.9)"
+              style={{ fontSize: "13px" }}
+              domain={[safeMin, safeMax]}
+              ticks={ticks}
+              tickMargin={10}
             />
 
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(20,40,80,0.6)",
-                backdropFilter: "blur(12px)",
+                backgroundColor: "rgba(20,40,80,0.75)",
+                backdropFilter: "blur(8px)",
                 border: "1px solid rgba(255,255,255,0.4)",
                 borderRadius: "12px",
-                color: "white"
+                color: "white",
               }}
-              cursor={{ stroke: "rgba(255,255,255,0.4)", strokeWidth: 1 }}
             />
 
             <Area
@@ -74,9 +98,8 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
               stroke="#3EA8FF"
               strokeWidth={3}
               fill="url(#gradientFill)"
-              fillOpacity={1}      // FULL BLUE AREA
               isAnimationActive={true}
-              animationDuration={1200}
+              animationDuration={800}
             />
           </AreaChart>
         </ResponsiveContainer>

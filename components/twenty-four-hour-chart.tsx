@@ -21,18 +21,29 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   const minTemp = Math.min(...temps);
   const maxTemp = Math.max(...temps);
 
-  // Slight domain padding
+  // ---------------------------------------------------------
+  // ⭐ 1. Domain padding
+  // ---------------------------------------------------------
   const minY = Math.floor(minTemp - 1);
   const maxY = Math.ceil(maxTemp + 1);
 
-  // EVEN integer ticks — no decimals
+  // ---------------------------------------------------------
+  // ⭐ 2. Calculate a "nice" step (always even spacing)
+  // ---------------------------------------------------------
+  const range = maxY - minY;       // total span
+  const roughStep = range / 4;     // ideal step
+  const step = Math.max(1, Math.round(roughStep)); // integer step, never 0
+
+  // ---------------------------------------------------------
+  // ⭐ 3. Build the tick list (integer, evenly spaced)
+  // ---------------------------------------------------------
   const ticks = [
     minY,
-    minY + (maxY - minY) * 0.25,
-    minY + (maxY - minY) * 0.5,
-    minY + (maxY - minY) * 0.75,
+    minY + step,
+    minY + step * 2,
+    minY + step * 3,
     maxY,
-  ].map((v) => Math.round(v)); // <-- integers only
+  ];
 
   return (
     <div className="w-full h-72 flex flex-col">

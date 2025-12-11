@@ -21,18 +21,18 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   const minTemp = Math.min(...temps);
   const maxTemp = Math.max(...temps);
 
-  // ⭐ proper domain extending to show below-0 cleanly
-  const minY = Math.floor(minTemp - 0.5);
-  const maxY = Math.ceil(maxTemp + 1);
+  // ⭐ slightly better domain padding (cleaner spacing)
+  const minY = Math.floor(minTemp - 0.8);
+  const maxY = Math.ceil(maxTemp + 1.2);
 
-  // ⭐ EVEN spacing
+  // ⭐ EVEN spacing with accurate tick rounding
   const ticks = [
     minY,
     minY + (maxY - minY) * 0.25,
     minY + (maxY - minY) * 0.5,
     minY + (maxY - minY) * 0.75,
     maxY,
-  ].map((v) => Math.round(v));
+  ].map((v) => Number(v.toFixed(1))); // <-- FIXED
 
   return (
     <div className="w-full h-72 flex flex-col">
@@ -43,7 +43,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 10, right: 30, left: 30, bottom: 10 }} // balanced margins
+          margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
         >
           <defs>
             <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
@@ -70,10 +70,10 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             domain={[minY, maxY]}
             ticks={ticks}
             stroke="rgba(255,255,255,0.9)"
-            allowDecimals={false}
+            allowDecimals={true}  // allow 1 decimal when needed
             style={{ fontSize: "13px" }}
             tickMargin={8}
-            width={40}   // ⭐ FINAL FIX: perfectly centers the chart
+            width={40}
           />
 
           <Tooltip
@@ -93,7 +93,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             stroke="#3EA8FF"
             strokeWidth={3}
             fill="url(#tempFill)"
-            baseValue={minY} // fills to true bottom
+            baseValue={minY}
           />
         </AreaChart>
       </ResponsiveContainer>

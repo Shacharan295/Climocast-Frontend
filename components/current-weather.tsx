@@ -30,14 +30,26 @@ export default function CurrentWeather({ data }: CurrentWeatherProps) {
     return "🌤️"
   }
 
-  const formattedDate = new Date(data.local_time)
+  const dateObj = new Date(data.local_time)
+
+  const dateLine = dateObj
     .toLocaleDateString("en-US", {
-      weekday: "short",
       month: "short",
       day: "numeric",
       year: "numeric",
+      weekday: "short",
     })
+    .toUpperCase()
     .replace(/,/g, "")
+    .replace(/(\w+)\s(\d+)\s(\d+)\s(\w+)/, "$1 $2 - $3 - $4")
+
+  const timeLine = dateObj
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(":", " : ")
 
   return (
     <div className="
@@ -60,7 +72,8 @@ export default function CurrentWeather({ data }: CurrentWeatherProps) {
 
         <div>
           <h2 className="text-white/70 text-sm uppercase tracking-wide">Time</h2>
-          <p className="text-white text-lg">{formattedDate}</p>
+          <p className="text-white text-sm tracking-widest">{dateLine}</p>
+          <p className="text-white text-lg font-semibold mt-1">{timeLine}</p>
         </div>
       </div>
 

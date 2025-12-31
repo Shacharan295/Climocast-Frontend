@@ -47,18 +47,18 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   // ---------------------------------------------------------
   // ⭐ 2. Calculate a "nice" step (always even spacing)
   // ---------------------------------------------------------
-  const range = maxY - minY;       // total span
-  const roughStep = range / 4;     // ideal step
-  const step = Math.max(1, Math.round(roughStep)); // integer step, never 0
+  const range = maxY - minY;
+  const roughStep = range / 4;
+  const step = Math.max(1, Math.round(roughStep));
 
   // ---------------------------------------------------------
-  // ⭐ 3. Snap maxY to align with step (fix uneven last tick)
+  // ⭐ 3. Snap maxY to align with step
   // ---------------------------------------------------------
   const alignedMaxY = minY + step * 4;
   maxY = alignedMaxY;
 
   // ---------------------------------------------------------
-  // ⭐ 4. Build the tick list (integer, evenly spaced)
+  // ⭐ 4. Build the tick list
   // ---------------------------------------------------------
   const ticks = [
     minY,
@@ -79,13 +79,13 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
           data={smoothData}
           margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
         >
+          {/* ✅ ONLY FIX HERE */}
           <defs>
-            <linearGradient>
-              <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3EA8FF" stopOpacity={0.85} />
-                <stop offset="100%" stopColor="#3EA8FF" stopOpacity={0.35} />
-              </linearGradient>
-            </defs>
+            <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3EA8FF" stopOpacity={0.85} />
+              <stop offset="100%" stopColor="#3EA8FF" stopOpacity={0.35} />
+            </linearGradient>
+          </defs>
 
           <CartesianGrid
             strokeDasharray="3 3"
@@ -93,7 +93,6 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             vertical={false}
           />
 
-          {/* ✅ ONLY REQUIRED CHANGE HERE */}
           <XAxis
             dataKey="time"
             stroke="rgba(255,255,255,0.9)"

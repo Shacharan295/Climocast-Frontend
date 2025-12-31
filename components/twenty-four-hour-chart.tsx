@@ -34,7 +34,8 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   const smoothData = smoothTemps(data);
 
   // ⭐⭐⭐ ONLY ADDITION (X-axis must match graph data)
-  const xTicks = smoothData.map((d) => d.dt);
+  const xTicks = smoothData.slice(1).map((d) => d.dt);
+
 
   const temps = smoothData.map((d) => d.temp);
   const minTemp = Math.min(...temps);

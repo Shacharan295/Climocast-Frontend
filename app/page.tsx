@@ -198,7 +198,11 @@ export default function WeatherDashboard() {
 
                 <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl">
                   <div className="h-72">
-                    <TwentyFourHourChart data={hourlyData} />
+                    <TwentyFourHourChart
+                      data={hourlyData}
+                      timezoneOffset={weatherData.timezone_offset}
+                      />
+
                   </div>
                 </div>
 

@@ -21,61 +21,70 @@ export default function TwentyFourHourChart({
   if (!data || data.length === 0) return null;
 
   // ---------------------------------------------------------
-  // ⭐ Light smoothing (unchanged)
+  // ⭐ ONLY CHANGE: build exactly 8 points
+  // (today first, fill rest from yesterday)
   // ---------------------------------------------------------
-  const smoothTemps = (data: { dt: number; temp: number }[]) => {
-    return data.map((d, i, arr) => {
-      if (i === 0 || i === arr.length - 1) return d;
-      return {
-        ...d,
-        temp: Number(
-          ((arr[i - 1].temp + d.temp + arr[i + 1].temp) / 3).toFixed(1)
-        ),
-      };
-    });
-  };
+  const localData = data.map((d) => {
+    const localDate = new Date((d.dt + timezoneOffset) * 1000);
+    return {
+      ...d,
+      hour: localDate.getHours(),
+      dateStr: localDate.toDateString(),
+    };
+  });
 
-  const smoothData = smoothTemps(data);
+  const todayStr = new Date(
+    (Date.now() + timezoneOffset * 1000)
+  ).toDateString();
 
-  // ✅ FIX 1: use ALL points for ticks (no slicing)
-  const xTicks = smoothData.map((d) => d.dt);
+  const todayPoints = localData.filter(
+    (d) => d.dateStr === todayStr
+  );
+
+  const pastPoints = localData.filter(
+    (d) => d.dateStr !== todayStr
+  );
+
+  let chartBase: typeof localData = [];
+
+  if (todayPoints.length >= 8) {
+    chartBase = todayPoints.slice(0, 8);
+  } else {
+    const needed = 8 - todayPoints.length;
+    const filler = pastPoints.slice(-needed);
+    chartBase = [...filler, ...todayPoints];
+  }
+
+  const chartData = chartBase.slice(-8);
+
+  // ---------------------------------------------------------
+  // ⭐ Smoothing (unchanged)
+  // ---------------------------------------------------------
+  const smoothData = chartData.map((d, i, arr) => {
+    if (i === 0 || i === arr.length - 1) return d;
+    return {
+      ...d,
+      temp: Number(
+        ((arr[i - 1].temp + d.temp + arr[i + 1].temp) / 3).toFixed(1)
+      ),
+    };
+  });
 
   const temps = smoothData.map((d) => d.temp);
   const minTemp = Math.min(...temps);
   const maxTemp = Math.max(...temps);
 
-  // ---------------------------------------------------------
-  // Y-axis logic (unchanged)
-  // ---------------------------------------------------------
   const minY = Math.floor(minTemp - 1);
-  let maxY = Math.ceil(maxTemp + 1);
-
-  const range = maxY - minY;
-  const roughStep = range / 4;
-  const step = Math.max(1, Math.round(roughStep));
-
-  const alignedMaxY = minY + step * 4;
-  maxY = alignedMaxY;
-
-  const ticks = [
-    minY,
-    minY + step,
-    minY + step * 2,
-    minY + step * 3,
-    maxY,
-  ];
+  const maxY = Math.ceil(maxTemp + 1);
 
   return (
     <div className="w-full h-72 flex flex-col">
       <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
-        Temperature Trend
+        Temperature Trend (Today)
       </h2>
 
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={smoothData}
-          margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
-        >
+        <AreaChart data={smoothData}>
           <defs>
             <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#3EA8FF" stopOpacity={0.85} />
@@ -89,43 +98,24 @@ export default function TwentyFourHourChart({
             vertical={false}
           />
 
-          {/* ✅ FIX 2: explicit domain to remove gap */}
           <XAxis
-            dataKey="dt"
-            type="number"
-            ticks={xTicks}
-            domain={[smoothData[0].dt, smoothData[smoothData.length - 1].dt]}
+            dataKey="hour"
             stroke="rgba(255,255,255,0.9)"
-            style={{ fontSize: "13px" }}
             interval={0}
-            tickMargin={8}
-            tickFormatter={(dt) =>
-              new Date((dt + timezoneOffset) * 1000).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+            tickFormatter={(h) =>
+              `${String(h).padStart(2, "0")}:00`
             }
           />
 
           <YAxis
             domain={[minY, maxY]}
-            ticks={ticks}
             stroke="rgba(255,255,255,0.9)"
             allowDecimals={false}
-            style={{ fontSize: "13px" }}
-            tickMargin={8}
-            width={40}
           />
 
           <Tooltip
-            labelFormatter={(dt) =>
-              new Date(
-                (Number(dt) + timezoneOffset) * 1000
-              ).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            }
+            labelFormatter={(h) => `${h}:00`}
+            formatter={(v) => [`${v}°C`, "Temp"]}
             contentStyle={{
               backgroundColor: "rgba(20,40,80,0.65)",
               backdropFilter: "blur(10px)",

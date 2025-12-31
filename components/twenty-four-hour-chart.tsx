@@ -69,7 +69,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   ];
 
   return (
-    <div className="w-full h-72 flex flex-col">
+    <div className="w-full h-full flex flex-col">
       <h2 className="text-white text-xl font-semibold mb-3 tracking-wide">
         Temperature Trend
       </h2>

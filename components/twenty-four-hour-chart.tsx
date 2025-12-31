@@ -11,7 +11,7 @@ import {
 
 interface ChartProps {
   data: { dt: number; temp: number }[];
-  timezoneOffset: number; // ⭐ ONLY ADDITION
+  timezoneOffset: number;
 }
 
 export default function TwentyFourHourChart({
@@ -21,7 +21,7 @@ export default function TwentyFourHourChart({
   if (!data || data.length === 0) return null;
 
   // ---------------------------------------------------------
-  // ⭐ ONLY CHANGE: Light smoothing for better visuals
+  // ⭐ Light smoothing (unchanged)
   // ---------------------------------------------------------
   const smoothTemps = (data: { dt: number; temp: number }[]) => {
     return data.map((d, i, arr) => {
@@ -37,35 +37,26 @@ export default function TwentyFourHourChart({
 
   const smoothData = smoothTemps(data);
 
-  // ⭐ X-axis ticks from graph data (excluding current)
-  const xTicks = smoothData.slice(1).map((d) => d.dt);
+  // ✅ FIX 1: use ALL points for ticks (no slicing)
+  const xTicks = smoothData.map((d) => d.dt);
 
   const temps = smoothData.map((d) => d.temp);
   const minTemp = Math.min(...temps);
   const maxTemp = Math.max(...temps);
 
   // ---------------------------------------------------------
-  // ⭐ 1. Domain padding
+  // Y-axis logic (unchanged)
   // ---------------------------------------------------------
   const minY = Math.floor(minTemp - 1);
   let maxY = Math.ceil(maxTemp + 1);
 
-  // ---------------------------------------------------------
-  // ⭐ 2. Calculate a "nice" step
-  // ---------------------------------------------------------
   const range = maxY - minY;
   const roughStep = range / 4;
   const step = Math.max(1, Math.round(roughStep));
 
-  // ---------------------------------------------------------
-  // ⭐ 3. Snap maxY to align with step
-  // ---------------------------------------------------------
   const alignedMaxY = minY + step * 4;
   maxY = alignedMaxY;
 
-  // ---------------------------------------------------------
-  // ⭐ 4. Build Y ticks
-  // ---------------------------------------------------------
   const ticks = [
     minY,
     minY + step,
@@ -98,12 +89,12 @@ export default function TwentyFourHourChart({
             vertical={false}
           />
 
-          {/* ⭐ ONLY REAL FIX: apply city timezone */}
+          {/* ✅ FIX 2: explicit domain to remove gap */}
           <XAxis
             dataKey="dt"
             type="number"
             ticks={xTicks}
-            domain={["dataMin", "dataMax"]}
+            domain={[smoothData[0].dt, smoothData[smoothData.length - 1].dt]}
             stroke="rgba(255,255,255,0.9)"
             style={{ fontSize: "13px" }}
             interval={0}

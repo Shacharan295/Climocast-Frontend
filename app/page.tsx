@@ -9,6 +9,8 @@ import TwentyFourHourChart from "@/components/twenty-four-hour-chart";
 import WeatherPersonalityCard from "@/components/weather-personality-card";
 import Image from "next/image";
 
+const WEATHER_CACHE_KEY = "climocast_last_weather";
+
 // ⭐ Emoji converter
 function getEmoji(desc: string) {
   const d = desc.toLowerCase();
@@ -33,18 +35,22 @@ function getEmoji(desc: string) {
 }
 
 export default function WeatherDashboard() {
-  const [weatherData, setWeatherData] = useState<any>(null);
-  const [loading, setLoading] = useState(false); // ⭐ changed initial value
+  const [weatherData, setWeatherData] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem(WEATHER_CACHE_KEY);
+      return cached ? JSON.parse(cached) : null;
+    }
+    return null;
+  });
+
+  const [loading, setLoading] = useState(false);
   const [currentCity, setCurrentCity] = useState("New York");
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
 
-  // ⭐ flicker control flag (ONLY addition)
   const isInitialLoad = useRef(true);
 
-  // ⭐ Fetch weather
   async function fetchWeather(city: string) {
     try {
-      // ⭐ prevent loading flash on first mount
       if (!isInitialLoad.current) {
         setLoading(true);
       }
@@ -72,7 +78,11 @@ export default function WeatherDashboard() {
         emoji: getEmoji(f.description),
       }));
 
-      setWeatherData({ ...data, forecast: fixedForecast });
+      const finalData = { ...data, forecast: fixedForecast };
+
+      setWeatherData(finalData);
+      localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(finalData));
+
       setCurrentCity(city);
       setLoading(false);
       isInitialLoad.current = false;
@@ -87,10 +97,10 @@ export default function WeatherDashboard() {
     fetchWeather(currentCity);
   }, []);
 
-  // ⭐ Fix 24-hour chart sorting
   const hourlyData =
     weatherData?.hourly
-      ?.sort((a: any, b: any) => {
+      ?.slice()
+      .sort((a: any, b: any) => {
         const t1 = parseInt(a.time.replace(":", ""));
         const t2 = parseInt(b.time.replace(":", ""));
         return t1 - t2;
@@ -104,7 +114,6 @@ export default function WeatherDashboard() {
       }
     : null;
 
-  // ⭐ Background engine
   const getBackgroundImage = () => {
     if (!weatherData) return "/images/default.jpg";
 
@@ -148,9 +157,7 @@ export default function WeatherDashboard() {
   return (
     <main
       className="min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000 p-6"
-      style={{
-        backgroundImage: `url(${getBackgroundImage()})`,
-      }}
+      style={{ backgroundImage: `url(${getBackgroundImage()})` }}
     >
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
@@ -229,10 +236,14 @@ export default function WeatherDashboard() {
           </div>
         </>
       ) : (
-        <div className="max-w-7xl mx-auto text-white text-center text-xl">
-  {"<<<<<< LOADING >>>>>>"}
-</div>
-
+        <div className="max-w-7xl mx-auto animate-pulse space-y-6">
+          <div className="h-64 bg-white/20 rounded-2xl" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="h-40 bg-white/20 rounded-2xl" />
+            <div className="h-40 bg-white/20 rounded-2xl" />
+            <div className="h-40 bg-white/20 rounded-2xl" />
+          </div>
+        </div>
       )}
     </main>
   );

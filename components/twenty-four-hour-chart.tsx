@@ -10,7 +10,7 @@ import {
 } from "recharts";
 
 interface ChartProps {
-  data: { time: string; temp: number }[];
+  data: { dt: number; temp: number }[];
 }
 
 export default function TwentyFourHourChart({ data }: ChartProps) {
@@ -19,7 +19,7 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   // ---------------------------------------------------------
   // ⭐ ONLY CHANGE: Light smoothing for better visuals
   // ---------------------------------------------------------
-  const smoothTemps = (data: { time: string; temp: number }[]) => {
+  const smoothTemps = (data: { dt: number; temp: number }[]) => {
     return data.map((d, i, arr) => {
       if (i === 0 || i === arr.length - 1) return d;
       return {
@@ -46,18 +46,18 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
   // ---------------------------------------------------------
   // ⭐ 2. Calculate a "nice" step (always even spacing)
   // ---------------------------------------------------------
-  const range = maxY - minY; // total span
-  const roughStep = range / 4; // ideal step
-  const step = Math.max(1, Math.round(roughStep)); // integer step, never 0
+  const range = maxY - minY;
+  const roughStep = range / 4;
+  const step = Math.max(1, Math.round(roughStep));
 
   // ---------------------------------------------------------
-  // ⭐ 3. Snap maxY to align with step (fix uneven last tick)
+  // ⭐ 3. Snap maxY to align with step
   // ---------------------------------------------------------
   const alignedMaxY = minY + step * 4;
   maxY = alignedMaxY;
 
   // ---------------------------------------------------------
-  // ⭐ 4. Build the tick list (integer, evenly spaced)
+  // ⭐ 4. Build the tick list
   // ---------------------------------------------------------
   const ticks = [
     minY,
@@ -91,12 +91,21 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
             vertical={false}
           />
 
+          {/* ⭐ ONLY FIX: Use dt instead of string time */}
           <XAxis
-            dataKey="time"
+            dataKey="dt"
+            type="number"
+            domain={["dataMin", "dataMax"]}
             stroke="rgba(255,255,255,0.9)"
             style={{ fontSize: "13px" }}
             interval={0}
             tickMargin={8}
+            tickFormatter={(dt) =>
+              new Date(dt * 1000).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            }
           />
 
           <YAxis
@@ -110,6 +119,12 @@ export default function TwentyFourHourChart({ data }: ChartProps) {
           />
 
           <Tooltip
+            labelFormatter={(dt) =>
+              new Date(Number(dt) * 1000).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            }
             contentStyle={{
               backgroundColor: "rgba(20,40,80,0.65)",
               backdropFilter: "blur(10px)",
